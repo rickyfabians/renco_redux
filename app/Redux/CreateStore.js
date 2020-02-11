@@ -1,9 +1,12 @@
 import { createStore, applyMiddleware, compose } from 'redux'
 import Config from '../Config/DebugConfig'
 import createSagaMiddleware from 'redux-saga'
-import ScreenTracking from './ScreenTrackingMiddleware'
+import Rehydration from '../Services/Rehydration'
+import ReduxPersist from '../Config/ReduxPersist'
+// import ScreenTracking from './ScreenTrackingMiddleware'
 // import logger from 'redux-logger'
-import { appNavigatorMiddleware } from '../Navigation/ReduxNavigation'
+// import { appNavigatorMiddleware } from '../Navigation/ReduxNavigation'
+import { composeWithDevTools } from 'redux-devtools-extension'
 
 // creates the store
 export default (rootReducer, rootSaga) => {
@@ -13,15 +16,14 @@ export default (rootReducer, rootSaga) => {
   const enhancers = []
 
   /* ------------- Navigation Middleware ------------ */
-  middleware.push(appNavigatorMiddleware)
+  // middleware.push(appNavigatorMiddleware)
 
   /* ------------- Analytics Middleware ------------- */
-  middleware.push(ScreenTracking)
+  // middleware.push(ScreenTracking)
 
   /* ------------- Saga Middleware ------------- */
 
-  const sagaMonitor = Config.pdebug
-    ? null : null
+  const sagaMonitor = null
   const sagaMiddleware = createSagaMiddleware({ sagaMonitor })
   middleware.push(sagaMiddleware)
 
@@ -32,11 +34,15 @@ export default (rootReducer, rootSaga) => {
 
   /* ------------- Assemble Middleware ------------- */
 
-  enhancers.push(applyMiddleware(...middleware))
+  if(__DEV__) enhancers.push(composeWithDevTools(applyMiddleware(...middleware)))
+  else enhancers.push(applyMiddleware(...middleware))
 
   // if Reactotron is enabled (default for __DEV__), we'll create the store through Reactotron
-  const createAppropriateStore = Config.useReactotron ? createStore : createStore
-  const store = createAppropriateStore(rootReducer, compose(...enhancers))
+  const store = createStore(rootReducer, compose(...enhancers))
+
+  if (ReduxPersist.active) {
+    Rehydration.updateReducers(store)
+  }
 
   // kick off root saga
   let sagasManager = sagaMiddleware.run(rootSaga)

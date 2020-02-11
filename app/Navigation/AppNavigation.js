@@ -1,14 +1,19 @@
-import { createStackNavigator } from 'react-navigation-stack'
-import { createAppContainer } from 'react-navigation'
+
+import * as React from 'react'
 import Home from '../Screens/Home'
+import NavigationService from '../Services/NavigationService'
+import { NavigationContainer } from '@react-navigation/native'
+import { createStackNavigator } from '@react-navigation/stack'
 
-// Manifest of possible screens
-const PrimaryNav = createStackNavigator({
-  Home: { screen: Home }
-}, {
-  // Default config for all screens
-  headerMode: 'none',
-  initialRouteName: 'Home'
-})
+const Stack = createStackNavigator()
+function App () {
+  return (
+    <NavigationContainer ref={(navigatorRef) => {NavigationService.setTopLevelNavigator(navigatorRef)}}>
+      <Stack.Navigator>
+        <Stack.Screen name='Home' component={Home}  />
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
+}
 
-export default createAppContainer(PrimaryNav)
+export default App

@@ -1,7 +1,8 @@
 
 import React, { Component } from 'react'
 import { Provider } from 'react-redux'
-import ReduxNavigation from './app/Navigation/ReduxNavigation'
+// import ReduxNavigation from './app/Navigation/ReduxNavigation'
+import AppNavigation from './app/Navigation/AppNavigation'
 import createStore from './app/Redux'
 
 // create our store
@@ -18,9 +19,10 @@ const store = createStore()
  */
 class App extends Component {
   render () {
+    console.log(this.props)
     return (
       <Provider store={store}>
-        <ReduxNavigation />
+        <AppNavigation />
       </Provider>
     )
   }
